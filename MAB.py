@@ -43,9 +43,11 @@ def decayed_epsilon_greedy(num_arms, epsilon, num_trial_decision):
                 maxi_arm = choice
 
         epsilon = (1 / (trial + 1) ** 0.01) * epsilon
-        print(f"Epsilon = {epsilon}")
+        # print(f"Epsilon = {epsilon}")
 
     return maxi_arm, maxi_exp_reward
+
+def 
 
 def main():
     num_arms = 10
