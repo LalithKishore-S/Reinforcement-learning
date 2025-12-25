@@ -47,14 +47,78 @@ def decayed_epsilon_greedy(num_arms, epsilon, num_trial_decision):
 
     return maxi_arm, maxi_exp_reward
 
-def 
+def incremental_uniform(num_arms, num_trial_decision):
+    Arms = []
+    arms_un_explored = np.array([True] * num_arms)
+    maxi_exp_reward = 0
+    maxi_arm = -1
+
+    for i in range(num_arms):
+        Arms.append(Arm())
+
+    for trial in range(num_trial_decision - 1):
+        choices = np.where(arms_un_explored)[0]
+        choice = np.random.choice(choices, size=(1,))[0]
+
+        print(f" Trial{trial+1} Exploitation => Arm {choice+1} => Reward = {Arms[choice].reward()}")
+        arms_un_explored[choice] = False
+
+        if Arms[choice].sample_avg > maxi_exp_reward:
+                maxi_exp_reward = Arms[choice].sample_avg
+                maxi_arm = choice
+
+        if np.sum(arms_un_explored) == 0:
+            arms_un_explored = np.array([True] * num_arms)
+
+    return maxi_arm, maxi_exp_reward
+
+def UCB(num_arms, num_trial_decision, c):
+
+    def compute_UCBMax(Arms, trial, c):
+        n = len(Arms)
+        maxi_arm = -1
+        maxi_exp_reward = 0
+        for i in range(n):
+            if maxi_exp_reward < Arms[i].sample_avg + c * np.sqrt(np.log(trial)/Arms[i].num_occur):
+                maxi_exp_reward = Arms[i].sample_avg
+                maxi_arm = i
+        return maxi_arm
+
+    Arms = []
+    arms_un_explored = np.array([True] * num_arms)
+    maxi_exp_reward = 0
+    maxi_arm = -1
+
+    for i in range(num_arms):
+        Arms.append(Arm())
+
+    for trial in range(num_trial_decision - 1):
+        if np.sum(arms_un_explored) > 0:
+            choices = np.where(arms_un_explored)[0]
+            choice = np.random.choice(choices, size=(1,))[0]
+
+            print(f"Trial{trial+1} Exploration => Arm {choice+1} => Reward = {Arms[choice].reward()}")
+            arms_un_explored[choice] = False
+
+        else:
+            choice = compute_UCBMax(Arms, trial, c)
+            print(f"Trial{trial+1} Exploitation => Arm {choice+1} => Reward = {Arms[choice].reward()}")
+
+    for i in range(num_arms):
+        if maxi_exp_reward < Arms[i].sample_avg:
+            maxi_exp_reward = Arms[i].sample_avg
+            maxi_arm = i
+
+    return maxi_arm, maxi_exp_reward
 
 def main():
     num_arms = 10
     epsilon = 1
     num_trial_decision = 20
-    
-    maxi_arm, maxi_exp_reward = decayed_epsilon_greedy(num_arms, epsilon, num_trial_decision)
+    c = 1
+    # maxi_arm, maxi_exp_reward = decayed_epsilon_greedy(num_arms, epsilon, num_trial_decision)
+    # maxi_arm, maxi_exp_reward = incremental_uniform(num_arms, num_trial_decision)
+    maxi_arm, maxi_exp_reward = UCB(num_arms, num_trial_decision, c)
 
     print(f'Arm chosen for trial {num_trial_decision} is {maxi_arm + 1} with a maximum expected value of {maxi_exp_reward}')
 
