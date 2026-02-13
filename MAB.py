@@ -80,7 +80,7 @@ def UCB(num_arms, num_trial_decision, c):
         maxi_exp_reward = 0
         for i in range(n):
             if maxi_exp_reward < Arms[i].sample_avg + c * np.sqrt(np.log(trial)/Arms[i].num_occur):
-                maxi_exp_reward = Arms[i].sample_avg
+                maxi_exp_reward = Arms[i].sample_avg + c * np.sqrt(np.log(trial)/Arms[i].num_occur)
                 maxi_arm = i
         return maxi_arm
 
