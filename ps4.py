@@ -44,7 +44,7 @@ def UCB(trial, seeds, num_seeds_considered, prob, c = 1):
         maxi_exp_reward = 0
         for i in range(n):
             if maxi_exp_reward < seeds[i].average + c * np.sqrt(np.log(trial)/seeds[i].num_trials):
-                maxi_exp_reward = seeds[i].average
+                maxi_exp_reward = seeds[i].average + c * np.sqrt(np.log(trial)/seeds[i].num_trials)
                 maxi_arm = i
         return maxi_arm
 
