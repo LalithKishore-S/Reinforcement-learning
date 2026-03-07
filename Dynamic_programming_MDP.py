@@ -111,6 +111,7 @@ class Agent_MDP(Agent):
             self.policy[state] = max_action
 
     def policy_iteration(self):
+
         while True:
             while True:
                 delta = 0
@@ -119,7 +120,6 @@ class Agent_MDP(Agent):
                     if self.env.is_terminal(state):
                         continue
                     actions = self.policy[state] 
-                    actions = actions if len(actions) == 1 else [actions]
                     val = 0
                     for action in actions:
                         action_val = 0
@@ -150,9 +150,9 @@ class Agent_MDP(Agent):
                         max_val = val
                         best_action = action
 
-                self.policy[state] = best_action
+                self.policy[state] = [best_action]
 
-                if best_action != old_action:
+                if [best_action] != old_action:
                     policy_stable = False
 
             if policy_stable:
@@ -177,7 +177,7 @@ class Agent_MDP(Agent):
                 elif self.env.maze[i,j] == 10:
                     print("G", end=" ")
                 else:
-                    print(arrows[self.policy[state]], end=" ")
+                    print(arrows[self.policy[state][0]], end=" ")
 
             print()
 
@@ -185,7 +185,7 @@ def main():
     env = np.array([[-1, -1, -1], [-10, -10, -1], [-1, -10, 10]])
     env = Maze(3, 3, env)
     agent = Agent_MDP(env, 1, 0.5)
-    agent.value_iteration()
+    agent.policy_iteration()
 
     agent.print_policy()
 
