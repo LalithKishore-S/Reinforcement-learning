@@ -110,6 +110,54 @@ class Agent_MDP(Agent):
         
             self.policy[state] = max_action
 
+    def policy_iteration(self):
+        while True:
+            while True:
+                delta = 0
+                prev_val_matrix = deepcopy(self.value_matrix)
+                for state in self.states:
+                    if self.env.is_terminal(state):
+                        continue
+                    actions = self.policy[state] 
+                    actions = actions if len(actions) == 1 else [actions]
+                    val = 0
+                    for action in actions:
+                        action_val = 0
+                        for prob, next_state in self.env.transition_prob[state][action]:
+                            reward, _ = self.env.reward_transition(next_state)
+                            action_val += prob * (reward + self.gamma * prev_val_matrix[next_state[0], next_state[1]])
+                        action_val *= self.env.action_prob[state[0], state[1]][action]
+                        val += action_val
+                    delta = max(delta, abs(val - prev_val_matrix[state[0], state[1]]))
+                    self.value_matrix[state[0], state[1]] = val
+                if delta < 1e-4:
+                    break
+
+            policy_stable = True
+            for state in self.states:
+                if self.env.is_terminal(state):
+                    continue
+                old_action = self.policy[state]
+                max_val = -float("inf")
+                best_action = None
+                for action in self.env.actions:
+                    val = 0
+                    for prob, next_state in self.env.transition_prob[state][action]:
+                        reward, _ = self.env.reward_transition(next_state)
+                        val += prob * (reward + self.gamma * self.value_matrix[next_state[0], next_state[1]])
+
+                    if val > max_val:
+                        max_val = val
+                        best_action = action
+
+                self.policy[state] = best_action
+
+                if best_action != old_action:
+                    policy_stable = False
+
+            if policy_stable:
+                break
+
     def print_policy(self):
 
         arrows = {
