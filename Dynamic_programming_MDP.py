@@ -189,4 +189,5 @@ def main():
 
     agent.print_policy()
 
-main()
+if __name__ == "__main__":
+    main()
